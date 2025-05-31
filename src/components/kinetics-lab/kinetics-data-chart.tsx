@@ -5,7 +5,7 @@ import { ResponsiveContainer, LineChart, CartesianGrid, XAxis, YAxis, Tooltip as
 import type { ChartConfig } from '@/components/ui/chart';
 import { ChartContainer } from '@/components/ui/chart';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import type { ChartDataset, ChartDataPoint } from '@/types';
+import type { ChartDataset } from '@/types'; // ChartDataPoint is implicitly used via ChartDataset
 import { FileSpreadsheet } from 'lucide-react';
 
 interface KineticsDataChartProps {
@@ -67,7 +67,7 @@ export function KineticsDataChart({
   }, {} as ChartConfig);
 
   return (
-    <Card className="shadow-lg flex flex-col h-full min-h-[400px] md:min-h-[500px]">
+    <Card className="shadow-lg flex flex-col min-h-[400px] md:min-h-[500px]"> {/* Removed h-full and flex-grow */}
       <CardHeader>
         <CardTitle className="text-xl font-headline text-primary flex items-center">
            <FileSpreadsheet className="mr-2 h-6 w-6 text-accent" />
@@ -75,16 +75,16 @@ export function KineticsDataChart({
         </CardTitle>
          <CardDescription>{chartDescription}</CardDescription>
       </CardHeader>
-      <CardContent className="flex-grow pb-6 pr-0">
-        <ChartContainer config={chartConfig} className="w-full h-full">
+      <CardContent className="flex-grow pb-6 pr-0"> {/* flex-grow makes content take space inside card */}
+        <ChartContainer config={chartConfig} className="w-full h-[350px] md:h-[450px]"> {/* Explicit height for ChartContainer */}
           <ResponsiveContainer width="100%" height="100%">
             <LineChart
               data={transformedData}
               margin={{
                 top: 5,
-                right: 30,
-                left: 20, // Adjusted for potentially longer y-axis labels
-                bottom: 25, // Adjusted for x-axis label
+                right: 30, // Ensure space for y-axis label on the right if it's ever moved
+                left: 20, // Increased space for y-axis label text
+                bottom: 25, // Increased space for x-axis label text
               }}
             >
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
@@ -97,10 +97,11 @@ export function KineticsDataChart({
                 stroke="hsl(var(--border))"
               />
               <YAxis
-                label={{ value: yAxisLabel, angle: -90, position: 'insideLeft', dx: -5, fill: 'hsl(var(--foreground))' }}
+                label={{ value: yAxisLabel, angle: -90, position: 'insideLeft', dx: -15, fill: 'hsl(var(--foreground))' }} // dx adjusted
                 tickFormatter={(value) => value.toExponential(1)}
                 tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
                 stroke="hsl(var(--border))"
+                width={80} // Give more space for y-axis label and ticks
               />
               <RechartsTooltip
                 contentStyle={{ backgroundColor: 'hsl(var(--background))', border: '1px solid hsl(var(--border))', borderRadius: 'var(--radius)'}}
@@ -130,8 +131,3 @@ export function KineticsDataChart({
     </Card>
   );
 }
-
-// Ensure the filename is kinetics-data-chart.tsx if it's renamed.
-// For this operation, assuming the original file name is still rate-chart.tsx for the diff tool.
-// If you intend to rename, please provide the new path for `rate-chart.tsx`.
-// For now, modifying in place.

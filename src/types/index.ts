@@ -1,3 +1,4 @@
+
 export interface SimulationParameters {
   preExponentialFactor: number;
   activationEnergy: number; // kJ/mol
@@ -21,6 +22,7 @@ export interface Catalyst {
 export interface ChartDataPoint {
   temperature: number; // K
   rate: number; // mol/L·s
+  k: number; // s⁻¹ (rate constant)
 }
 
 export interface ChartDataset {

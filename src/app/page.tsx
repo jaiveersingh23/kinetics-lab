@@ -1,10 +1,12 @@
+
 'use client';
 
 import { useState } from 'react';
 import { ParameterForm } from '@/components/kinetics-lab/parameter-form';
 import { ResultsDisplay } from '@/components/kinetics-lab/results-display';
-import { RateChart } from '@/components/kinetics-lab/rate-chart';
-import type { SimulationParameters, SimulationResult, ChartDataset, ChartDataPoint, Catalyst } from '@/types';
+// Renamed RateChart to KineticsDataChart, update import if filename changes
+import { KineticsDataChart } from '@/components/kinetics-lab/rate-chart'; 
+import type { SimulationParameters, SimulationResult, ChartDataset, ChartDataPoint } from '@/types';
 import { 
   calculateRateConstant, 
   calculateReactionRate, 
@@ -14,7 +16,7 @@ import {
   getCatalystById
 } from '@/lib/chemistry';
 import { useToast } from "@/hooks/use-toast";
-import { Briefcase } from 'lucide-react'; // Using Briefcase for KineticsLab name
+import { Briefcase } from 'lucide-react';
 
 const CHART_COLORS = [
   'hsl(var(--chart-1))',
@@ -63,9 +65,9 @@ export default function KineticsLabPage() {
     const effectiveEaKjMol = calculateEffectiveActivationEnergy(params.activationEnergy, params.catalystId);
     
     const chartData: ChartDataPoint[] = temperaturePoints.map(temp => {
-      const k = calculateRateConstant(params.preExponentialFactor, effectiveEaKjMol, temp);
-      const rate = calculateReactionRate(k, params.initialConcentration);
-      return { temperature: temp, rate };
+      const k_val = calculateRateConstant(params.preExponentialFactor, effectiveEaKjMol, temp);
+      const rate_val = calculateReactionRate(k_val, params.initialConcentration);
+      return { temperature: temp, rate: rate_val, k: k_val };
     });
 
     const catalyst = getCatalystById(params.catalystId);
@@ -83,7 +85,7 @@ export default function KineticsLabPage() {
     setNextDatasetId(prevId => prevId + 1);
 
     toast({
-      title: "Dataset Added to Graph",
+      title: "Dataset Added to Graphs",
       description: `${datasetName} is now visualized.`,
     });
   };
@@ -113,9 +115,24 @@ export default function KineticsLabPage() {
         
         <section className="lg:w-3/5 xl:w-2/3 space-y-6 md:space-y-8 flex flex-col">
           <ResultsDisplay result={currentResult} />
-          <div className="flex-grow">
-            <RateChart datasets={graphDatasets} temperaturePoints={temperaturePoints} />
-          </div>
+          
+          <KineticsDataChart 
+            datasets={graphDatasets} 
+            temperaturePoints={temperaturePoints}
+            valueToPlot="rate"
+            chartTitle="Reaction Rate vs. Temperature"
+            chartDescription="Overlay multiple simulations to compare reaction rates."
+            yAxisLabel="Reaction Rate (mol/L·s)"
+          />
+
+          <KineticsDataChart 
+            datasets={graphDatasets} 
+            temperaturePoints={temperaturePoints}
+            valueToPlot="k"
+            chartTitle="Rate Constant (k) vs. Temperature"
+            chartDescription="Overlay multiple simulations to compare rate constants."
+            yAxisLabel="Rate Constant (k) (s⁻¹)"
+          />
         </section>
       </main>
     </div>
